@@ -105,3 +105,41 @@ Cada escrita cria uma nova cópia da lista, então:
 
     - não é boa para muitas escritas
     - ideal quando existem muitas leituras e poucas modificações
+
+
+ 3. Tree stecture
+
+ Problema
+
+ O HashMap armazena dados sem ordem.
+
+ Imagine um sistema que precisa listar transações ordenadas por valor.
+
+ Solução
+
+ O TreeMap usa uma árvore balanceada (Red-Black Tree) para manter os elementos sempre ordenados pela chave.
+
+Como funciona internamente
+
+O TreeMap usa uma árvore Red-Black, que mantém o balanceamento da árvore.
+
+Isso garante:
+
+inserção eficiente
+busca rápida
+ordenação automática
+
+# Vantagens das estruturas em árvore
+
+- Mantêm dados ordenados automaticamente
+- Permitem buscas por intervalo
+- Boa performance para grandes conjuntos
+
+# Quando usar Tree Structures
+
+Estruturas como TreeMap e TreeSet são ideais quando você precisa:
+
+- dados ordenados
+- ranking
+- intervalos de busca
+- listas classificadas
