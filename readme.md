@@ -617,6 +617,279 @@ threads geram logs -> fila -> writer
 fila de transações para processamento
 ---
 
+
+# 7. estruturas ordenadas concorrentes
+
+## Problema
+
+Em sistemas modernos, muitas vezes precisamos:
+- manter dados **ordenados automaticamente**
+- permitir **acesso concorrente**
+- garantir **consistencia e perfomance**
+
+## Problemas possíveis
+
+- Falta de threads safety -> Estrutura tradicionais ordenados como `TreeMap, Treeset` não são thread-safe, podendo ocasionar corrupção da arvore, dados inconsistentes.
+- Race condition-> Multiplas threads alterando a estrutura ao mesmo tempo podem gerar inserções conflitantes, leituras inconsistentes.
+- ``ConcurrentModificationException`` -> uma thread iterando enquanto outra modifica.
+- baixa escalabilidade com sincronização manual -> se usar ``Collections.synchronizedSorteMap`` pode gerar problemas como lock global, baixa perfomance, gargalo em sistemas com muitas threads.
+- perda deordenação em estruturas concorrentes simples -> strutura como ``ConcurrentHashMap`` são thread-safe mas não mantem ordenação.
+---
+
+## Solução
+
+Usar estruturas ordennadas concorrentes;
+- ``ConcurrentSkipListMap``.
+-  ``ConcurrentSkipListSet``
+Essas estrutura oferecem:
+- ordenação automatica
+- thread safety
+- alta concorrencia
+
+
+---
+
+## Como funciona internamente
+
+Essas estruturas são baseadas em:
+Skip list
+Uma estrutura semelhante a uma lista encadeada com multiplos niveis.
+---
+
+## Vantagens
+
+- Thread-safe
+- Mantem ordenação automatica
+- Alta escabilidade
+- suporte a operações de intervalo
+- não bloqueia toda a estrutura
+- melhor que ``treemap`` em concorrencia.
+
+
+---
+
+## Desvantagens
+
+- Mais lenta que ``ConcurrentHashMap`` para acesso direto
+- Mais consumo de memoria
+- Estrutura mais complexa
+- Overhead desnecessário em cenários simples
+---
+
+## Quando usar
+
+Use estrutura ordenadas concorrentes quando precisar de:
+- dados ordenados
+- multiplas threads acessando simultaneamente
+- consultas por intervalo
+- ranking dinamico
+
+---
+
+## Casos reais
+
+- Ranking em tempo real
+- sistemas financeiros
+- logs concorrentes
+- sistemas de monitoramento
+- filas de prioridade concorrentes
+- sistema de tranding
+
+
+# 8 comunicação entre threads
+
+## Problema
+
+Em sistemas concorrentes, threads precisam trocar informações e coordenar execução
+
+Exemplo:
+- uma thread produz dados
+- outra consome
+- outra monitora estado
+Sem comunicação adequada: threads ficam descoordenadas
+
+## Problemas possíveis
+
+- Race condition
+Thareds acessam dados compartilhados sem controle: leitura inconsistente e escrita sobrescrevendo valores.
+- Falta de sincronização
+Threads executam fora de ordem. Dados inválidos  ou comportamento inesperado.
+- Busy waiting
+Problema : Alto consumo de CPU e ineficiente
+- Deadlock
+Duas threads esperando uma pela outra o sistema trava
+- Starvation
+Uma thread nunca consegue executar
+- Complexidade decontrole manual
+Uso direto de:
+  - wait()
+  - notify()
+  - synchronized
+  - 
+---
+
+## Solução
+
+Java oferece várias formas de comunicação entre threads:
+- wait / notify/ notifyall
+Comunicação baseada em monitores.
+- BlockingQueue
+comunicação via fila
+- Locks (ReentrantLock + Condition)
+mais controle do que synchronized
+- Classes utilitarias
+  - CountDownLatch
+  - CyclicBarrier 
+  - Semaphore
+  - Exchanger
+
+- Variaveis atomicas
+AtomicInteger, AtomicBoolean
+
+---
+
+## Como funciona internamente
+
+1. Monitor
+Cada objeto em Java possui um monitor interno
+2. BlockingQueue
+Usa locks internos.
+Threads são bloqueadas com eficiencia
+usa fila para troca de dados
+3. CAS(Compare and swap)
+Usado em classe atomicas
+4. LockSuporte
+usado internamente por varias classes.
+
+---
+
+## Vantagens
+
+- permite coordenação entre threads
+- evita inconsistência de dados
+- melhora performance (quando bem usado)
+- evita busy waiting
+- abstrações modernas simplificam muito o código
+
+
+---
+
+## Desvantagens
+
+- complexidade alta
+- difícil de debugar
+- risco de deadlock
+- uso incorreto pode piorar performance
+- exige conhecimento profundo
+---
+
+## Quando usar
+
+Use comunicação entre threads quando:
+
+- múltiplas threads compartilham dados
+- existe dependência entre execuções
+- precisa coordenar tarefas
+- sistemas assíncronos ou paralelos
+
+---
+
+## Casos reais
+
+- Producer-Consumer
+- Processamento em etapas
+- sistemas de mensageria
+- APIs assincronas
+- Controle de inicializacao
+- Sistemas financeiros
+- Sistemas de alta perfomance
+
+# 9 Priority Queue
+
+## Problema
+
+Em muitos sistemas, não basta processar dados na ordem de chegada (FIFO).
+
+Precisamos processar com base em prioridade.
+
+Exemplos:
+- tarefas urgentes primeiro
+- menor valor primeiro
+- maior pontuação primeiro
+
+Se usarmos:
+- Queue (FIFO)
+- ArrayList
+
+não conseguimos garantir ordenação por prioridade de forma eficiente.
+
+## Problemas possíveis
+
+- Processamento fora de prioridade
+- ordenação manual custosa
+- baixa perfomance em inserções frequentes
+- falta de estrutura adequeada
+- não é thread-safe
+---
+
+## Solução
+
+Usar ``PriorityQueue.``
+
+Ela é uma fila que ordena automaticamente os elementos com base em:
+- ordem natural (Comparable)
+- ou um Comparator
+
+---
+
+## Como funciona internamente
+
+1. Heap(Binary heap)
+2. Offer
+3. poll
+4. peek
+
+---
+
+## Vantagens
+
+- Ordenação automática por prioridade
+- Boa performance (O(log n))
+- Estrutura eficiente (heap)
+- Flexível com Comparator
+- Ideal para algoritmos de otimização
+
+
+---
+
+## Desvantagens
+
+- Não é thread-safe
+- Não mantém ordenação completa (apenas o topo garantido)
+- Iteração não é ordenada
+- Não é ideal para buscas arbitrárias
+---
+
+## Quando usar
+
+Use ``PriorityQueue`` quando precisar de:
+
+- processar elementos por prioridade
+- sempre acessar o menor (ou maior) elemento rapidamente
+- alta frequência de inserções e remoções
+
+---
+
+## Casos reais
+
+- Sistema de tarefas com prioridade
+- algoritmos classicos
+- filas de atendimentos
+- sistemas de agendamento
+- processamento de eventos
+- sistema financeiro
+
+---
 --finalizar
 # Conclusão
 
