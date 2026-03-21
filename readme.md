@@ -1,18 +1,3 @@
-valor = 10
-
-Thread A lê -> 10
-Thread B lê -> 10
-
-Thread A grava -> 11
-Thread B grava -> 11
-
-
-Mesmo esperando **2 incrementos**, o resultado final será **11 em vez de 12**.
-
-Isso acontece porque a operação **não é atômica**.
-
----
-
 ## Solução
 
 Usar `ConcurrentHashMap`.
@@ -528,6 +513,108 @@ Sistema distribuídos que precisa evitar processamento duplicado. Por exemplo **
 - Lista de tarefas ordenadas por prioridades
 - Logs ordenados por tempo. Sistema que recebe logs de múltiplas threads.
 
+---
+
+# 6. BlockingQueue
+
+## Problema
+
+Em sistemas concorrentes, é comum termos o padrão:
+- Producer -> gera dados
+- Consumer -> processa dados
+
+Exemplo:
+- uma thread produz tarefa
+- outra thread consome e processa
+
+Sem controle adequado, podem ocorrer:
+- consumo antes da produção
+- perda de dados
+- uso excessivo de CPU(busy waiting)
+- necessidade de sincronização manual complexa
+
+## Problemas possíveis
+
+- Race condition -> Sem controle, múltiplas threads podem acessar a fila ao mesmo tempo e gerar inconsistência.
+- Busy waiting(loop infitino) -> Consome CPU desnecessariamente e ineficiente
+- Perda de dados -> Se a fila estiver cheia e não houver controle, novos dados pdem ser descartados ou gerar erro
+- Complexidade de sincronização -> Usando métodos como `wait(), notify(), syncronized` o código fica dificil de manter.
+
+---
+
+## Solução
+
+Usar `BlockingQueue`.
+
+Ela resolve o problema fornecendo:
+- Controle automático de concorrencia.
+- bloqueio inteligente de threads
+- sincronização interna segura.
+
+Ela possui operações bloqueantes:
+- Inserção -> se a fila estiver cheia -> bloqueia até ter espaço.
+`put()`
+- Consumo -> se a fila estiver vazia -> bloqueia ate ter elemento
+`take()`
+
+Não precisa de wait/notify, loop manual, threads ficam em eespera eficiente.
+
+---
+
+## Como funciona internamente
+
+A `BlockingQueue` é uma interface que possui implementações como:
+- ArrayBlockingQueue
+- LinkedBlockingQueue
+- PriorityBlockingQueue
+- DelayQueue
+---
+
+## Vantagens
+
+- Thread-safe
+- Evita busy waiting
+- Sincronização automatica
+- Código mais simples e limpo
+- Ideal para producer-consumer
+- Bloqueio Eficiente
+
+
+---
+
+## Desvantagens
+
+- Pode causar bloqueios indesejados se mal configurada
+- Algumas implementações são limitadas
+- Pode aumentar latencia se consumidores forem lentos
+- ``PriorityBlockingQueue`` não é limitada(risco de memoria)
+---
+
+## Quando usar
+
+Use `BlockingQueue` quando precisar de:
+
+- há comunicação entre threads
+- existe padrão producer-consumer
+- voce precisa controlar fluxos de dados
+- quer evitar sincronização manual
+
+---
+
+## Casos reais
+
+- Sistema de processamento de filas
+pedidos sendo processados em background
+- sistemas de mensageria interna
+fila de eventos dentro da aplicação
+- pool de threads
+interamente usa `BlockingQueue`
+- processamento assincrono
+upload de arquivos
+- Sistemas de logging
+threads geram logs -> fila -> writer
+- sistema financeiro
+fila de transações para processamento
 ---
 
 --finalizar
